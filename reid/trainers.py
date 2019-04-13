@@ -11,7 +11,7 @@ import torch
 from torch.autograd import Variable
 
 from .evaluation_metrics import accuracy
-from .loss import OIMLoss, TripletLoss
+#from .loss import OIMLoss, TripletLoss
 from .utils.meters import AverageMeter
 
 
@@ -36,7 +36,8 @@ class BaseTrainer(object):
             inputs, targets = self._parse_data(inputs)
             loss, prec1 = self._forward(inputs, targets)
 
-            losses.update(loss.data[0], targets.size(0))
+            #losses.update(loss.data[0], targets.size(0))
+            losses.update(loss.item(), targets.size(0))
             precisions.update(prec1, targets.size(0))
 
             optimizer.zero_grad()
@@ -67,8 +68,13 @@ class BaseTrainer(object):
 
 class Trainer(BaseTrainer):
     def _parse_data(self, inputs):
+        # The format of input: "img, fname, pid, camid".
         imgs, _, pids, _ = inputs
+        # Test:
+        #     type(imgs) = torch.Tensor; type([Variable(imgs)]) = list.
+
         inputs = [Variable(imgs)]
+        #     type(pids) = torch.Tensor; type(Variable(pids.cuda())) = torch.Tensor
         targets = Variable(pids.cuda())
         return inputs, targets
 
@@ -78,6 +84,7 @@ class Trainer(BaseTrainer):
             loss = self.criterion(outputs, targets)
             prec, = accuracy(outputs.data, targets.data)
             prec = prec[0]
+        '''
         elif isinstance(self.criterion, OIMLoss):
             loss, outputs = self.criterion(outputs, targets)
             prec, = accuracy(outputs.data, targets.data)
@@ -86,4 +93,5 @@ class Trainer(BaseTrainer):
             loss, prec = self.criterion(outputs, targets)
         else:
             raise ValueError("Unsupported loss:", self.criterion)
+        '''
         return loss, prec
