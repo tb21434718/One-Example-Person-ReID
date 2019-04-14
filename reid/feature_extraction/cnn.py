@@ -7,7 +7,7 @@ Created on Wed Apr 10 19:32:42 2019
 from __future__ import absolute_import
 
 from collections import OrderedDict
-from torch.autograd import Variable
+#from torch.autograd import Variable
 
 from ..utils import to_torch
 
