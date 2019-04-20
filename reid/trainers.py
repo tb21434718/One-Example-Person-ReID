@@ -58,7 +58,8 @@ class BaseTrainer(object):
                               data_time.val, data_time.avg,
                               losses.val, losses.avg,
                               precisions.val, precisions.avg))
-
+    
+    
     def _parse_data(self, inputs):
         raise NotImplementedError
 
@@ -73,13 +74,13 @@ class Trainer(BaseTrainer):
         # Test:
         #     type(imgs) = torch.Tensor; type([Variable(imgs)]) = list.
 
-        inputs = [Variable(imgs)]
+        inputs = Variable(imgs)
         #     type(pids) = torch.Tensor; type(Variable(pids.cuda())) = torch.Tensor
         targets = Variable(pids.cuda())
         return inputs, targets
 
     def _forward(self, inputs, targets):
-        outputs = self.model(*inputs)
+        outputs = self.model(inputs)
         if isinstance(self.criterion, torch.nn.CrossEntropyLoss):
             loss = self.criterion(outputs, targets)
             prec, = accuracy(outputs.data, targets.data)

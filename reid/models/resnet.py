@@ -31,6 +31,7 @@ class ResNet(nn.Module):
         super(ResNet, self).__init__()
 
         self.depth = depth
+        self.name = 'resnet' + str(depth)
         self.pretrained = pretrained
         self.cut_at_pooling = cut_at_pooling
 

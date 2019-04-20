@@ -35,6 +35,7 @@ class Dataset(object):
         self.split_id = split_id
         self.meta = None
         self.split = None
+        self.num_cameras = 0
         self.train, self.val, self.trainval = [], [], []
         self.query, self.gallery = [], []
         self.num_train_ids, self.num_val_ids, self.num_trainval_ids = 0, 0, 0
@@ -64,6 +65,7 @@ class Dataset(object):
 
         self.meta = read_json(osp.join(self.root, 'meta.json'))
         identities = self.meta['identities']
+        self.num_cameras = self.meta['num_cameras']
         self.train = _pluck(identities, train_pids, relabel=True)
         self.val = _pluck(identities, val_pids, relabel=True)
         self.trainval = _pluck(identities, trainval_pids, relabel=True)
