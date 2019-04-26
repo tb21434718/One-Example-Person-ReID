@@ -37,7 +37,7 @@ def load_checkpoint(fpath):
         return None
     else:
         fnames.sort(key = lambda x : int(x[11:-3]))
-        print("Loaded checkpoint from iter step {}.".format(fnames[-1][11:-3]))
+        print("Loaded checkpoint from step {}.".format(fnames[-1][11:-3]))
         checkpoint = torch.load(os.path.join(fpath, fnames[-1]))
         return checkpoint
 

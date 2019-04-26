@@ -5,6 +5,7 @@ Created on Wed Apr 10 20:22:17 2019
 @author: chen
 """
 from __future__ import absolute_import
+
 import os.path as osp
 
 from PIL import Image
@@ -25,12 +26,12 @@ class Preprocessor(object):
             return [self._get_single_item(index) for index in indices]
         return self._get_single_item(indices)
 
-    def _get_single_item(self, index):
-        fname, pid, camid = self.dataset[index]
+    def _get_single_item(self, index):            
+        fname, pid, camid, index = self.dataset[index]
         fpath = fname
         if self.root is not None:
             fpath = osp.join(self.root, fname)
         img = Image.open(fpath).convert('RGB')
         if self.transform is not None:
             img = self.transform(img)
-        return img, fname, pid, camid
+        return img, fname, pid, camid, index

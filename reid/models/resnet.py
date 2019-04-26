@@ -27,7 +27,7 @@ class ResNet(nn.Module):
     }
 
     def __init__(self, depth, pretrained=True, cut_at_pooling=False,
-                 num_features=0, norm=False, dropout=0, num_classes=0):
+                 num_features=0, norm=False, dropout=0, num_classes=0, fixed_layer=True):
         super(ResNet, self).__init__()
 
         self.depth = depth
@@ -39,7 +39,18 @@ class ResNet(nn.Module):
         if depth not in ResNet.__factory:
             raise KeyError("Unsupported depth:", depth)
         self.base = ResNet.__factory[depth](pretrained=pretrained)
-
+        
+        if fixed_layer:
+            # fix layers [conv1 ~ layer2]
+            fixed_names = []
+            for name, module in self.base._modules.items():
+                if name == "layer3":
+                    assert fixed_names == ["conv1", "bn1", "relu", "maxpool", "layer1", "layer2"]
+                    break
+                fixed_names.append(name)
+                for param in module.parameters():
+                    param.requires_grad = False
+        
         if not self.cut_at_pooling:
             self.num_features = num_features
             self.norm = norm
@@ -81,7 +92,7 @@ class ResNet(nn.Module):
 
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(x.size(0), -1)
-
+        '''
         if self.has_embedding:
             x = self.feat(x)
             x = self.feat_bn(x)
@@ -93,6 +104,7 @@ class ResNet(nn.Module):
             x = self.drop(x)
         if self.num_classes > 0:
             x = self.classifier(x)
+        '''
         return x
 
     def reset_params(self):

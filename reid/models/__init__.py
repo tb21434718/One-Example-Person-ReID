@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 
+from .eug import *
 from .resnet import *
 
 
 __factory = {
+    'eug': EUG,
     'resnet18': resnet18,
     'resnet34': resnet34,
     'resnet50': resnet50,

@@ -13,7 +13,7 @@ from torchvision.transforms import *
 from PIL import Image
 
 
-class RectScale(object):
+class RectScale(object): # 缩放图像
     def __init__(self, height, width, interpolation=Image.BILINEAR):
         self.height = height
         self.width = width
@@ -26,7 +26,7 @@ class RectScale(object):
         return img.resize((self.width, self.height), self.interpolation)
 
 
-class RandomSizedRectCrop(object):
+class RandomSizedRectCrop(object): # 对图像进行随机裁剪并缩放,进行数据增强.
     def __init__(self, height, width, interpolation=Image.BILINEAR):
         self.height = height
         self.width = width
@@ -35,6 +35,8 @@ class RandomSizedRectCrop(object):
     def __call__(self, img):
         for attempt in range(10):
             area = img.size[0] * img.size[1]
+            # Note:
+            #     random.uniform(x,y): 生成介于x和y之间的实数.
             target_area = random.uniform(0.64, 1.0) * area
             aspect_ratio = random.uniform(2, 3)
 

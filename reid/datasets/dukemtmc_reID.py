@@ -15,9 +15,11 @@ from ..utils.serialization import write_json
 
 class DukeMTMC_ReID(Dataset):
 
-    def __init__(self, root, split_id=0, num_val=100, download=True):
+    def __init__(self, root, split_id=0, download=True):
         super(DukeMTMC_ReID, self).__init__(root, split_id=split_id)
-
+        
+        self.index = -1
+        
         if download:
             self.download()
 
@@ -25,7 +27,7 @@ class DukeMTMC_ReID(Dataset):
             raise RuntimeError("Dataset not found or corrupted. " +
                                "You can use download=True to download it.")
 
-        self.load(num_val)
+        self.load()
 
     def download(self):
         if self._check_integrity():
@@ -47,6 +49,7 @@ class DukeMTMC_ReID(Dataset):
             fpaths = sorted(glob(osp.join(self.root, subdir, '*.jpg')))
             pids = set()
             for fpath in fpaths:
+                self.index += 1
                 fname = osp.basename(fpath)
                 pid, cam = map(int, pattern.search(fname).groups())
                 cam -= 1
@@ -56,24 +59,23 @@ class DukeMTMC_ReID(Dataset):
                 pids.add(pid)
                 if pid >= len(identities):
                     identities.append([[] for _ in range(8)])  # 8 camera views
-                fname = ('{:08d}_{:02d}_{:04d}.jpg'.format(pid, cam, len(identities[pid][cam])))
+                fname = ('{:04d}_{:01d}_{:05d}.jpg'.format(pid, cam, self.index))
                 identities[pid][cam].append(fname)
                 shutil.copy(fpath, osp.join(images_dir, fname))
             return pids
 
-        trainval_pids = register('bounding_box_train')
+        train_pids = register('bounding_box_train')
         gallery_pids = register('bounding_box_test')
         query_pids = register('query')
-        assert trainval_pids.isdisjoint(gallery_pids)
 
         # Save meta information into a json file
-        meta = {'name': 'DukeMTMC_ReID', 'shot': 'multiple', 'num_cameras': 8,
+        meta = {'name': 'dukemtmc_reID', 'shot': 'multiple', 'num_cameras': 8,
                 'identities': identities}
         write_json(meta, osp.join(self.root, 'meta.json'))
 
         # Save the only training / test split
         splits = [{
-            'trainval': sorted(list(trainval_pids)),
+            'train': sorted(list(train_pids)),
             'query': sorted(list(query_pids)),
             'gallery': sorted(list(gallery_pids))}]
         write_json(splits, osp.join(self.root, 'splits.json'))
